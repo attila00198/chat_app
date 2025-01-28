@@ -1,0 +1,345 @@
+[
+    {
+        "label": "socket",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "socket",
+        "description": "socket",
+        "detail": "socket",
+        "documentation": {}
+    },
+    {
+        "label": "socket",
+        "importPath": "socket",
+        "description": "socket",
+        "isExtraImport": true,
+        "detail": "socket",
+        "documentation": {}
+    },
+    {
+        "label": "AF_INET",
+        "importPath": "socket",
+        "description": "socket",
+        "isExtraImport": true,
+        "detail": "socket",
+        "documentation": {}
+    },
+    {
+        "label": "SOCK_STREAM",
+        "importPath": "socket",
+        "description": "socket",
+        "isExtraImport": true,
+        "detail": "socket",
+        "documentation": {}
+    },
+    {
+        "label": "SOL_SOCKET",
+        "importPath": "socket",
+        "description": "socket",
+        "isExtraImport": true,
+        "detail": "socket",
+        "documentation": {}
+    },
+    {
+        "label": "SO_REUSEADDR",
+        "importPath": "socket",
+        "description": "socket",
+        "isExtraImport": true,
+        "detail": "socket",
+        "documentation": {}
+    },
+    {
+        "label": "threading",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "threading",
+        "description": "threading",
+        "detail": "threading",
+        "documentation": {}
+    },
+    {
+        "label": "Lock",
+        "importPath": "threading",
+        "description": "threading",
+        "isExtraImport": true,
+        "detail": "threading",
+        "documentation": {}
+    },
+    {
+        "label": "Thread",
+        "importPath": "threading",
+        "description": "threading",
+        "isExtraImport": true,
+        "detail": "threading",
+        "documentation": {}
+    },
+    {
+        "label": "Lock",
+        "importPath": "threading",
+        "description": "threading",
+        "isExtraImport": true,
+        "detail": "threading",
+        "documentation": {}
+    },
+    {
+        "label": "setup_logging",
+        "importPath": "logging_config",
+        "description": "logging_config",
+        "isExtraImport": true,
+        "detail": "logging_config",
+        "documentation": {}
+    },
+    {
+        "label": "setup_logging",
+        "importPath": "logging_config",
+        "description": "logging_config",
+        "isExtraImport": true,
+        "detail": "logging_config",
+        "documentation": {}
+    },
+    {
+        "label": "setup_logging",
+        "importPath": "logging_config",
+        "description": "logging_config",
+        "isExtraImport": true,
+        "detail": "logging_config",
+        "documentation": {}
+    },
+    {
+        "label": "setup_logging",
+        "importPath": "logging_config",
+        "description": "logging_config",
+        "isExtraImport": true,
+        "detail": "logging_config",
+        "documentation": {}
+    },
+    {
+        "label": "client_manager",
+        "importPath": "client_manager",
+        "description": "client_manager",
+        "isExtraImport": true,
+        "detail": "client_manager",
+        "documentation": {}
+    },
+    {
+        "label": "client_manager",
+        "importPath": "client_manager",
+        "description": "client_manager",
+        "isExtraImport": true,
+        "detail": "client_manager",
+        "documentation": {}
+    },
+    {
+        "label": "list_users",
+        "importPath": "command_list",
+        "description": "command_list",
+        "isExtraImport": true,
+        "detail": "command_list",
+        "documentation": {}
+    },
+    {
+        "label": "whisper",
+        "importPath": "command_list",
+        "description": "command_list",
+        "isExtraImport": true,
+        "detail": "command_list",
+        "documentation": {}
+    },
+    {
+        "label": "logging",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "logging",
+        "description": "logging",
+        "detail": "logging",
+        "documentation": {}
+    },
+    {
+        "label": "configparser",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "configparser",
+        "description": "configparser",
+        "detail": "configparser",
+        "documentation": {}
+    },
+    {
+        "label": "command_manager",
+        "importPath": "command_manager",
+        "description": "command_manager",
+        "isExtraImport": true,
+        "detail": "command_manager",
+        "documentation": {}
+    },
+    {
+        "label": "receive_messages",
+        "kind": 2,
+        "importPath": "client.client",
+        "description": "client.client",
+        "peekOfCode": "def receive_messages(client_socket):\n    while True:\n        try:\n            message = client_socket.recv(1024).decode('utf-8')\n            if message == \"!NICKNAME\":\n                client_socket.send(nickname.encode('utf-8'))\n            else:\n                print(message)\n        except Exception as e:\n            print(f\"An error occurred: {e}\")",
+        "detail": "client.client",
+        "documentation": {}
+    },
+    {
+        "label": "ClientManager",
+        "kind": 6,
+        "importPath": "server.client_manager",
+        "description": "server.client_manager",
+        "peekOfCode": "class ClientManager:\n    def __init__(self):\n        self.client_list = {}\n        self.lock = threading.Lock()\n        logger.info(\"ClientManager initialized.\")\n    def add_client(self, username, client_socket):\n        with self.lock:\n            if username in self.client_list:\n                client_socket.send(\"Username already taken. Please reconnect with a different name.\".encode())\n                client_socket.close()",
+        "detail": "server.client_manager",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "server.client_manager",
+        "description": "server.client_manager",
+        "peekOfCode": "logger = setup_logging('client_manager')\nclass ClientManager:\n    def __init__(self):\n        self.client_list = {}\n        self.lock = threading.Lock()\n        logger.info(\"ClientManager initialized.\")\n    def add_client(self, username, client_socket):\n        with self.lock:\n            if username in self.client_list:\n                client_socket.send(\"Username already taken. Please reconnect with a different name.\".encode())",
+        "detail": "server.client_manager",
+        "documentation": {}
+    },
+    {
+        "label": "client_manager",
+        "kind": 5,
+        "importPath": "server.client_manager",
+        "description": "server.client_manager",
+        "peekOfCode": "client_manager = ClientManager()",
+        "detail": "server.client_manager",
+        "documentation": {}
+    },
+    {
+        "label": "list_users",
+        "kind": 2,
+        "importPath": "server.command_list",
+        "description": "server.command_list",
+        "peekOfCode": "def list_users(client, args=None):\n    users = list(client_manager.client_list.keys())\n    client.send(f\"Currently online: {', '.join(users)}\".encode())\n    logger.info(\"Listed users\")\ndef whisper(client, args=None):\n    if not args or len(args.split(\" \", 1)) < 2:\n        client.send(\"Usage: /whisper <username> <message>\".encode())\n        logger.warning(\"Whisper command used incorrectly\")\n        return\n    target_name, message = args.split(\" \", 1)",
+        "detail": "server.command_list",
+        "documentation": {}
+    },
+    {
+        "label": "whisper",
+        "kind": 2,
+        "importPath": "server.command_list",
+        "description": "server.command_list",
+        "peekOfCode": "def whisper(client, args=None):\n    if not args or len(args.split(\" \", 1)) < 2:\n        client.send(\"Usage: /whisper <username> <message>\".encode())\n        logger.warning(\"Whisper command used incorrectly\")\n        return\n    target_name, message = args.split(\" \", 1)\n    send_to = client_manager.get_client_socket(target_name)\n    if send_to:\n        send_to.send(f\"[Whisper] {client_manager.get_username(client)}: {message}\".encode())\n        logger.info(f\"Whispered to {target_name}\")",
+        "detail": "server.command_list",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "server.command_list",
+        "description": "server.command_list",
+        "peekOfCode": "logger = setup_logging('command_list')\ndef list_users(client, args=None):\n    users = list(client_manager.client_list.keys())\n    client.send(f\"Currently online: {', '.join(users)}\".encode())\n    logger.info(\"Listed users\")\ndef whisper(client, args=None):\n    if not args or len(args.split(\" \", 1)) < 2:\n        client.send(\"Usage: /whisper <username> <message>\".encode())\n        logger.warning(\"Whisper command used incorrectly\")\n        return",
+        "detail": "server.command_list",
+        "documentation": {}
+    },
+    {
+        "label": "CommandManager",
+        "kind": 6,
+        "importPath": "server.command_manager",
+        "description": "server.command_manager",
+        "peekOfCode": "class CommandManager:\n    def __init__(self):\n        self.commands = {}\n        self.lock = Lock()\n        self.register_static_commands()\n        logger.info(\"CommandManager initialized.\")\n    def register_command(self, name, func):\n        with self.lock:\n            self.commands[name] = func\n            logger.info(f\"Registered command: {name}\")",
+        "detail": "server.command_manager",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "server.command_manager",
+        "description": "server.command_manager",
+        "peekOfCode": "logger = setup_logging('command_manager')\nclass CommandManager:\n    def __init__(self):\n        self.commands = {}\n        self.lock = Lock()\n        self.register_static_commands()\n        logger.info(\"CommandManager initialized.\")\n    def register_command(self, name, func):\n        with self.lock:\n            self.commands[name] = func",
+        "detail": "server.command_manager",
+        "documentation": {}
+    },
+    {
+        "label": "command_manager",
+        "kind": 5,
+        "importPath": "server.command_manager",
+        "description": "server.command_manager",
+        "peekOfCode": "command_manager = CommandManager()",
+        "detail": "server.command_manager",
+        "documentation": {}
+    },
+    {
+        "label": "setup_logging",
+        "kind": 2,
+        "importPath": "server.logging_config",
+        "description": "server.logging_config",
+        "peekOfCode": "def setup_logging(name):\n    logger = logging.getLogger(name)\n    logger.setLevel(logging.INFO)\n    handler = logging.StreamHandler()\n    formatter = logging.Formatter(\"%(asctime)s | %(levelname)s | %(message)s\", \"%y-%m-%d %H:%M\")\n    handler.setFormatter(formatter)\n    logger.addHandler(handler)\n    return logger",
+        "detail": "server.logging_config",
+        "documentation": {}
+    },
+    {
+        "label": "broadcast",
+        "kind": 2,
+        "importPath": "server.server",
+        "description": "server.server",
+        "peekOfCode": "def broadcast(message, sender=None):\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:\n            if username != sender:\n                client_socket.send(full_msg.encode())\n        except Exception as e:\n            logger.error(f\"Error sending message to {username}: {e}\")\n            to_remove.append(username)",
+        "detail": "server.server",
+        "documentation": {}
+    },
+    {
+        "label": "handle_client",
+        "kind": 2,
+        "importPath": "server.server",
+        "description": "server.server",
+        "peekOfCode": "def handle_client(client_socket, address):\n    logger.info(f\"Client connected from {address}\")\n    client_socket.send(\"!NICKNAME\".encode())\n    username = client_socket.recv(BUFFSIZE).decode().strip()\n    client_manager.add_client(username, client_socket)\n    broadcast(f\"{username} connected.\")\n    try:\n        while True:\n            message = client_socket.recv(BUFFSIZE).decode()\n            if not message:",
+        "detail": "server.server",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "server.server",
+        "description": "server.server",
+        "peekOfCode": "logger = setup_logging('server')\n# Verify logging configuration\nlogger.info(\"Logging is configured correctly.\")\n# Load configuration\nconfig = configparser.ConfigParser()\nconfig.read('config.ini')\nHOST = config.get('server', 'host', fallback='localhost')\nPORT = config.getint('server', 'port', fallback=6969)\nBUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()",
+        "detail": "server.server",
+        "documentation": {}
+    },
+    {
+        "label": "config",
+        "kind": 5,
+        "importPath": "server.server",
+        "description": "server.server",
+        "peekOfCode": "config = configparser.ConfigParser()\nconfig.read('config.ini')\nHOST = config.get('server', 'host', fallback='localhost')\nPORT = config.getint('server', 'port', fallback=6969)\nBUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()\ndef broadcast(message, sender=None):\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():",
+        "detail": "server.server",
+        "documentation": {}
+    },
+    {
+        "label": "HOST",
+        "kind": 5,
+        "importPath": "server.server",
+        "description": "server.server",
+        "peekOfCode": "HOST = config.get('server', 'host', fallback='localhost')\nPORT = config.getint('server', 'port', fallback=6969)\nBUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()\ndef broadcast(message, sender=None):\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:\n            if username != sender:",
+        "detail": "server.server",
+        "documentation": {}
+    },
+    {
+        "label": "PORT",
+        "kind": 5,
+        "importPath": "server.server",
+        "description": "server.server",
+        "peekOfCode": "PORT = config.getint('server', 'port', fallback=6969)\nBUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()\ndef broadcast(message, sender=None):\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:\n            if username != sender:\n                client_socket.send(full_msg.encode())",
+        "detail": "server.server",
+        "documentation": {}
+    },
+    {
+        "label": "BUFFSIZE",
+        "kind": 5,
+        "importPath": "server.server",
+        "description": "server.server",
+        "peekOfCode": "BUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()\ndef broadcast(message, sender=None):\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:\n            if username != sender:\n                client_socket.send(full_msg.encode())\n        except Exception as e:",
+        "detail": "server.server",
+        "documentation": {}
+    },
+    {
+        "label": "lock",
+        "kind": 5,
+        "importPath": "server.server",
+        "description": "server.server",
+        "peekOfCode": "lock = Lock()\ndef broadcast(message, sender=None):\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:\n            if username != sender:\n                client_socket.send(full_msg.encode())\n        except Exception as e:\n            logger.error(f\"Error sending message to {username}: {e}\")",
+        "detail": "server.server",
+        "documentation": {}
+    }
+]
