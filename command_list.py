@@ -12,8 +12,10 @@ async def list_users(username, args=None):
     if not users:
         logger.info("No users connected.")
         return
+    
     send_to = client_manager.get_client_socket(username)
     client_type = client_manager.get_client_type(username)
+    
     if client_type == 'websocket':
         await send_to.send(f"Connected users: {', '.join(users)}")
     else:
@@ -49,8 +51,10 @@ async def whisper(username, args):
             await recipient_socket.send(f"[WHISPER] {username}: {message}")
         else:
             recipient_socket.write(f"[WHISPER] {username}: {message}".encode())
+            await recipient_socket.drain()
     else:
         if sender_type == 'websocket':
-            sender_socket.send(f"User {recipient} not found.")
+            await sender_socket.send(f"User {recipient} not found.")
         else:
             sender_socket.write(f"User {recipient} not found.".encode())
+            await sender_socket.drain()

@@ -6,70 +6,88 @@ This project is a simple chat application consisting of a server and client. The
 ## Project Structure
 ```
 chat_app/
-├── client/
-│   └── client.py
-├── server/
-│   ├── server.py
-│   ├── client_manager.py
-│   ├── command_manager.py
-│   ├── command_list.py
-│   └── logging_config.py
-└── config.ini
+├── client.py
+├── tcp_server.py
+├── ws_server.py
+├── client_manager.py
+├── command_manager.py
+├── command_list.py
+├── message_handler.py
+├── logging_config.py
+├── config.ini
+└── README.md
 ```
 
 ## Configuration
 The `config.ini` file contains server configuration settings:
 ```ini
-[server]
+[tcp_server]
 host = localhost
 port = 6969
-buffsize = 1024
+
+[ws_server]
+host = localhost
+port = 6968
 ```
 
 ## Server Components
 
-1. **server.py**
-   - Starts the server and listens for client connections.
+1. **tcp_server.py**
+   - Starts the TCP server and listens for client connections.
    - Handles client connections and broadcasts messages.
    - Uses `client_manager` to manage connected clients.
    - Uses `command_manager` to handle commands.
 
-2. **client_manager.py**
+2. **ws_server.py**
+   - Starts the WebSocket server and listens for client connections.
+   - Handles client connections and broadcasts messages.
+   - Uses `client_manager` to manage connected clients.
+   - Uses `command_manager` to handle commands.
+
+3. **client_manager.py**
    - Manages the list of connected clients.
    - Adds and removes clients.
    - Provides methods to get client sockets and usernames.
 
-3. **command_manager.py**
+4. **command_manager.py**
    - Manages commands that clients can use.
    - Registers and handles commands.
    - Uses `command_list` for predefined commands.
 
-4. **command_list.py**
+5. **command_list.py**
    - Contains predefined commands such as `list_users` and `whisper`.
    - Uses `client_manager` to interact with clients.
 
-5. **logging_config.py**
+6. **message_handler.py**
+   - Handles incoming messages and broadcasts them to clients.
+   - Uses `command_manager` to handle commands.
+
+7. **logging_config.py**
    - Provides a centralized logging configuration.
    - Sets up logging for different modules.
 
 ## Client Component
 
 1. **client.py**
-   - Connects to the server.
+   - Connects to the TCP server.
    - Sends and receives messages.
    - Handles user input and server responses.
 
 ## Usage
 
-1. **Starting the Server**
-   - Navigate to the `server` directory.
+1. **Starting the TCP Server**
    - Run the server:
      ```sh
-     python server.py
+     python tcp_server.py
      ```
 
-2. **Starting the Client**
-   - Navigate to the `client` directory.
+2. **Starting the WebSocket Server**
+   - Run the WebSocket server:
+     ```sh
+     python ws_server.py
+     ```
+
+3. **Starting the Client**
    - Run the client:
      ```sh
      python client.py
@@ -79,7 +97,7 @@ buffsize = 1024
    - Use `!quit` to disconnect from the server.
 
 ## Commands
-- **/list_users**: Lists all currently connected users.
+- **/list**: Lists all currently connected users.
 - **/whisper <username> <message>**: Sends a private message to a specific user.
 
 ## Logging
