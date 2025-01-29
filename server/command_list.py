@@ -5,11 +5,17 @@ from logging_config import setup_logging
 logger = setup_logging('command_list')
 
 def list_users(client, args=None):
+    """
+    Lists all currently connected users.
+    """
     users = list(client_manager.client_list.keys())
     client.send(f"Currently online: {', '.join(users)}".encode())
-    logger.info("Listed users")
+    logger.info(f"Command list_users executed by {client_manager.get_username(client)}")
 
 def whisper(client, args=None):
+    """
+    Sends a private message to a specific user.
+    """
     if not args or len(args.split(" ", 1)) < 2:
         client.send("Usage: /whisper <username> <message>".encode())
         logger.warning("Whisper command used incorrectly")

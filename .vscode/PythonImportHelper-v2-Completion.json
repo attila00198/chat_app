@@ -172,11 +172,38 @@
         "documentation": {}
     },
     {
+        "label": "connect_to_server",
+        "kind": 2,
+        "importPath": "client.client",
+        "description": "client.client",
+        "peekOfCode": "def connect_to_server(host, port):\n    \"\"\"\n    Connects to the server and returns the client socket.\n    \"\"\"\n    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n    try:\n        client_socket.connect((host, port))\n    except Exception as e:\n        print(f\"Failed to connect to server: {e}\")\n        exit()",
+        "detail": "client.client",
+        "documentation": {}
+    },
+    {
         "label": "receive_messages",
         "kind": 2,
         "importPath": "client.client",
         "description": "client.client",
-        "peekOfCode": "def receive_messages(client_socket):\n    while True:\n        try:\n            message = client_socket.recv(1024).decode('utf-8')\n            if message == \"!NICKNAME\":\n                client_socket.send(nickname.encode('utf-8'))\n            else:\n                print(message)\n        except Exception as e:\n            print(f\"An error occurred: {e}\")",
+        "peekOfCode": "def receive_messages(client_socket, nickname):\n    \"\"\"\n    Receives messages from the server and prints them.\n    \"\"\"\n    while True:\n        try:\n            message = client_socket.recv(1024).decode('utf-8')\n            if not message:\n                print(\"Server closed the connection.\")\n                client_socket.close()",
+        "detail": "client.client",
+        "documentation": {}
+    },
+    {
+        "label": "send_message",
+        "kind": 2,
+        "importPath": "client.client",
+        "description": "client.client",
+        "peekOfCode": "def send_message(client_socket):\n    while True:\n        try:\n            message = input()\n            if message == \"!quit\":\n                print(\"Closing connection...\")\n                client_socket.close()\n                break\n            else:\n                client_socket.send(message.encode('utf-8'))",
+        "detail": "client.client",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "client.client",
+        "description": "client.client",
+        "peekOfCode": "def main():\n    try:\n        HOST = input(\"Enter the server IP address: \") or \"localhost\"\n        PORT = int(input(\"Enter the server port: \") or 6969)\n        NICKNAME = input(\"Enter your nickname: \") or \"Anonymous\"\n        client_socket = connect_to_server(HOST, PORT)\n        receive_thread = threading.Thread(target=receive_messages, args=(client_socket, NICKNAME))\n        receive_thread.daemon = True\n        send_thread = threading.Thread(target=send_message, args=(client_socket,))\n        send_thread.daemon = True",
         "detail": "client.client",
         "documentation": {}
     },
@@ -212,7 +239,7 @@
         "kind": 2,
         "importPath": "server.command_list",
         "description": "server.command_list",
-        "peekOfCode": "def list_users(client, args=None):\n    users = list(client_manager.client_list.keys())\n    client.send(f\"Currently online: {', '.join(users)}\".encode())\n    logger.info(\"Listed users\")\ndef whisper(client, args=None):\n    if not args or len(args.split(\" \", 1)) < 2:\n        client.send(\"Usage: /whisper <username> <message>\".encode())\n        logger.warning(\"Whisper command used incorrectly\")\n        return\n    target_name, message = args.split(\" \", 1)",
+        "peekOfCode": "def list_users(client, args=None):\n    \"\"\"\n    Lists all currently connected users.\n    \"\"\"\n    users = list(client_manager.client_list.keys())\n    client.send(f\"Currently online: {', '.join(users)}\".encode())\n    logger.info(f\"Command list_users executed by {client_manager.get_username(client)}\")\ndef whisper(client, args=None):\n    \"\"\"\n    Sends a private message to a specific user.",
         "detail": "server.command_list",
         "documentation": {}
     },
@@ -221,7 +248,7 @@
         "kind": 2,
         "importPath": "server.command_list",
         "description": "server.command_list",
-        "peekOfCode": "def whisper(client, args=None):\n    if not args or len(args.split(\" \", 1)) < 2:\n        client.send(\"Usage: /whisper <username> <message>\".encode())\n        logger.warning(\"Whisper command used incorrectly\")\n        return\n    target_name, message = args.split(\" \", 1)\n    send_to = client_manager.get_client_socket(target_name)\n    if send_to:\n        send_to.send(f\"[Whisper] {client_manager.get_username(client)}: {message}\".encode())\n        logger.info(f\"Whispered to {target_name}\")",
+        "peekOfCode": "def whisper(client, args=None):\n    \"\"\"\n    Sends a private message to a specific user.\n    \"\"\"\n    if not args or len(args.split(\" \", 1)) < 2:\n        client.send(\"Usage: /whisper <username> <message>\".encode())\n        logger.warning(\"Whisper command used incorrectly\")\n        return\n    target_name, message = args.split(\" \", 1)\n    send_to = client_manager.get_client_socket(target_name)",
         "detail": "server.command_list",
         "documentation": {}
     },
@@ -230,7 +257,7 @@
         "kind": 5,
         "importPath": "server.command_list",
         "description": "server.command_list",
-        "peekOfCode": "logger = setup_logging('command_list')\ndef list_users(client, args=None):\n    users = list(client_manager.client_list.keys())\n    client.send(f\"Currently online: {', '.join(users)}\".encode())\n    logger.info(\"Listed users\")\ndef whisper(client, args=None):\n    if not args or len(args.split(\" \", 1)) < 2:\n        client.send(\"Usage: /whisper <username> <message>\".encode())\n        logger.warning(\"Whisper command used incorrectly\")\n        return",
+        "peekOfCode": "logger = setup_logging('command_list')\ndef list_users(client, args=None):\n    \"\"\"\n    Lists all currently connected users.\n    \"\"\"\n    users = list(client_manager.client_list.keys())\n    client.send(f\"Currently online: {', '.join(users)}\".encode())\n    logger.info(f\"Command list_users executed by {client_manager.get_username(client)}\")\ndef whisper(client, args=None):\n    \"\"\"",
         "detail": "server.command_list",
         "documentation": {}
     },
@@ -239,7 +266,7 @@
         "kind": 6,
         "importPath": "server.command_manager",
         "description": "server.command_manager",
-        "peekOfCode": "class CommandManager:\n    def __init__(self):\n        self.commands = {}\n        self.lock = Lock()\n        self.register_static_commands()\n        logger.info(\"CommandManager initialized.\")\n    def register_command(self, name, func):\n        with self.lock:\n            self.commands[name] = func\n            logger.info(f\"Registered command: {name}\")",
+        "peekOfCode": "class CommandManager:\n    def __init__(self):\n        self.commands = {}\n        self.lock = Lock()\n        self.register_static_commands()\n        logger.info(\"CommandManager initialized.\")\n    def register_command(self, name, func):\n        \"\"\"\n        Registers a command with the given name and function.\n        \"\"\"",
         "detail": "server.command_manager",
         "documentation": {}
     },
@@ -248,7 +275,7 @@
         "kind": 5,
         "importPath": "server.command_manager",
         "description": "server.command_manager",
-        "peekOfCode": "logger = setup_logging('command_manager')\nclass CommandManager:\n    def __init__(self):\n        self.commands = {}\n        self.lock = Lock()\n        self.register_static_commands()\n        logger.info(\"CommandManager initialized.\")\n    def register_command(self, name, func):\n        with self.lock:\n            self.commands[name] = func",
+        "peekOfCode": "logger = setup_logging('command_manager')\nclass CommandManager:\n    def __init__(self):\n        self.commands = {}\n        self.lock = Lock()\n        self.register_static_commands()\n        logger.info(\"CommandManager initialized.\")\n    def register_command(self, name, func):\n        \"\"\"\n        Registers a command with the given name and function.",
         "detail": "server.command_manager",
         "documentation": {}
     },
@@ -266,7 +293,7 @@
         "kind": 2,
         "importPath": "server.logging_config",
         "description": "server.logging_config",
-        "peekOfCode": "def setup_logging(name):\n    logger = logging.getLogger(name)\n    logger.setLevel(logging.INFO)\n    handler = logging.StreamHandler()\n    formatter = logging.Formatter(\"%(asctime)s | %(levelname)s | %(message)s\", \"%y-%m-%d %H:%M\")\n    handler.setFormatter(formatter)\n    logger.addHandler(handler)\n    return logger",
+        "peekOfCode": "def setup_logging(name):\n    \"\"\"\n    Sets up logging for the given logger name.\n    \"\"\"\n    logger = logging.getLogger(name)\n    logger.setLevel(logging.INFO)\n    handler = logging.StreamHandler()\n    formatter = logging.Formatter(\"%(asctime)s | %(levelname)s | %(message)s\", \"%y-%m-%d %H:%M\")\n    handler.setFormatter(formatter)\n    logger.addHandler(handler)",
         "detail": "server.logging_config",
         "documentation": {}
     },
@@ -275,7 +302,7 @@
         "kind": 2,
         "importPath": "server.server",
         "description": "server.server",
-        "peekOfCode": "def broadcast(message, sender=None):\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:\n            if username != sender:\n                client_socket.send(full_msg.encode())\n        except Exception as e:\n            logger.error(f\"Error sending message to {username}: {e}\")\n            to_remove.append(username)",
+        "peekOfCode": "def broadcast(message, sender=None):\n    \"\"\"\n    Broadcasts a message to all connected clients except the sender.\n    \"\"\"\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:\n            if username != sender:\n                client_socket.send(full_msg.encode())",
         "detail": "server.server",
         "documentation": {}
     },
@@ -284,7 +311,7 @@
         "kind": 2,
         "importPath": "server.server",
         "description": "server.server",
-        "peekOfCode": "def handle_client(client_socket, address):\n    logger.info(f\"Client connected from {address}\")\n    client_socket.send(\"!NICKNAME\".encode())\n    username = client_socket.recv(BUFFSIZE).decode().strip()\n    client_manager.add_client(username, client_socket)\n    broadcast(f\"{username} connected.\")\n    try:\n        while True:\n            message = client_socket.recv(BUFFSIZE).decode()\n            if not message:",
+        "peekOfCode": "def handle_client(client_socket, address):\n    \"\"\"\n    Handles communication with a connected client.\n    \"\"\"\n    logger.info(f\"Client connected from {address}\")\n    client_socket.send(\"!NICKNAME\".encode())\n    username = client_socket.recv(BUFFSIZE).decode().strip()\n    client_manager.add_client(username, client_socket)\n    broadcast(f\"{username} connected.\")\n    try:",
         "detail": "server.server",
         "documentation": {}
     },
@@ -302,7 +329,7 @@
         "kind": 5,
         "importPath": "server.server",
         "description": "server.server",
-        "peekOfCode": "config = configparser.ConfigParser()\nconfig.read('config.ini')\nHOST = config.get('server', 'host', fallback='localhost')\nPORT = config.getint('server', 'port', fallback=6969)\nBUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()\ndef broadcast(message, sender=None):\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():",
+        "peekOfCode": "config = configparser.ConfigParser()\nconfig.read('config.ini')\nHOST = config.get('server', 'host', fallback='localhost')\nPORT = config.getint('server', 'port', fallback=6969)\nBUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()\ndef broadcast(message, sender=None):\n    \"\"\"\n    Broadcasts a message to all connected clients except the sender.\n    \"\"\"",
         "detail": "server.server",
         "documentation": {}
     },
@@ -311,7 +338,7 @@
         "kind": 5,
         "importPath": "server.server",
         "description": "server.server",
-        "peekOfCode": "HOST = config.get('server', 'host', fallback='localhost')\nPORT = config.getint('server', 'port', fallback=6969)\nBUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()\ndef broadcast(message, sender=None):\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:\n            if username != sender:",
+        "peekOfCode": "HOST = config.get('server', 'host', fallback='localhost')\nPORT = config.getint('server', 'port', fallback=6969)\nBUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()\ndef broadcast(message, sender=None):\n    \"\"\"\n    Broadcasts a message to all connected clients except the sender.\n    \"\"\"\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []",
         "detail": "server.server",
         "documentation": {}
     },
@@ -320,7 +347,7 @@
         "kind": 5,
         "importPath": "server.server",
         "description": "server.server",
-        "peekOfCode": "PORT = config.getint('server', 'port', fallback=6969)\nBUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()\ndef broadcast(message, sender=None):\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:\n            if username != sender:\n                client_socket.send(full_msg.encode())",
+        "peekOfCode": "PORT = config.getint('server', 'port', fallback=6969)\nBUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()\ndef broadcast(message, sender=None):\n    \"\"\"\n    Broadcasts a message to all connected clients except the sender.\n    \"\"\"\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():",
         "detail": "server.server",
         "documentation": {}
     },
@@ -329,7 +356,7 @@
         "kind": 5,
         "importPath": "server.server",
         "description": "server.server",
-        "peekOfCode": "BUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()\ndef broadcast(message, sender=None):\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:\n            if username != sender:\n                client_socket.send(full_msg.encode())\n        except Exception as e:",
+        "peekOfCode": "BUFFSIZE = config.getint('server', 'buffsize', fallback=1024)\nlock = Lock()\ndef broadcast(message, sender=None):\n    \"\"\"\n    Broadcasts a message to all connected clients except the sender.\n    \"\"\"\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:",
         "detail": "server.server",
         "documentation": {}
     },
@@ -338,7 +365,7 @@
         "kind": 5,
         "importPath": "server.server",
         "description": "server.server",
-        "peekOfCode": "lock = Lock()\ndef broadcast(message, sender=None):\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:\n            if username != sender:\n                client_socket.send(full_msg.encode())\n        except Exception as e:\n            logger.error(f\"Error sending message to {username}: {e}\")",
+        "peekOfCode": "lock = Lock()\ndef broadcast(message, sender=None):\n    \"\"\"\n    Broadcasts a message to all connected clients except the sender.\n    \"\"\"\n    full_msg = f\"{sender}: {message}\" if sender else f\"[SERVER]: {message}\"\n    to_remove = []\n    for username, client_socket in client_manager.client_list.items():\n        try:\n            if username != sender:",
         "detail": "server.server",
         "documentation": {}
     }

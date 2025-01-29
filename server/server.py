@@ -22,6 +22,9 @@ lock = Lock()
 
 
 def broadcast(message, sender=None):
+    """
+    Broadcasts a message to all connected clients except the sender.
+    """
     full_msg = f"{sender}: {message}" if sender else f"[SERVER]: {message}"
     to_remove = []
 
@@ -38,6 +41,9 @@ def broadcast(message, sender=None):
 
 
 def handle_client(client_socket, address):
+    """
+    Handles communication with a connected client.
+    """
     logger.info(f"Client connected from {address}")
 
     client_socket.send("!NICKNAME".encode())
