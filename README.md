@@ -6,15 +6,14 @@ This project is a simple chat application consisting of a server and client. The
 ## Project Structure
 ```
 chat_app/
-├── client/
-│   └── client.py
-├── server/
-│   ├── server.py
-│   ├── client_manager.py
-│   ├── command_manager.py
-│   ├── command_list.py
-│   └── logging_config.py
-└── config.ini
+├── client.py
+├── server.py
+├── client_manager.py
+├── command_manager.py
+├── command_list.py
+├── logging_config.py
+├── config.ini
+└── README.md
 ```
 
 ## Configuration
@@ -52,31 +51,13 @@ buffsize = 1024
    - Provides a centralized logging configuration.
    - Sets up logging for different modules.
 
-## Client Component
-
-1. **client.py**
-   - Connects to the server.
-   - Sends and receives messages.
-   - Handles user input and server responses.
-
 ## Usage
 
-1. **Starting the Server**
-   - Navigate to the `server` directory.
+- **Starting the Server**
    - Run the server:
      ```sh
      python server.py
      ```
-
-2. **Starting the Client**
-   - Navigate to the `client` directory.
-   - Run the client:
-     ```sh
-     python client.py
-     ```
-   - Enter a nickname when prompted.
-   - Type messages to send to the server.
-   - Use `!quit` to disconnect from the server.
 
 ## Commands
 - **/list_users**: Lists all currently connected users.
