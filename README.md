@@ -1,12 +1,47 @@
 # Chat Application
 
-## Overview
-This project is a simple chat application consisting of a server and client. The server handles multiple clients, broadcasting messages and handling commands. The client connects to the server, sends messages, and receives broadcasts.
+This is a simple chat application that supports both WebSocket and TCP connections. It allows users to send messages to each other and execute commands.
+
+## Features
+
+- Supports WebSocket and TCP connections
+- Broadcast messages to all connected clients
+- Handle commands such as listing users and sending private messages
+
+## Setup
+
+1. Clone the repository:
+    ```sh
+    git clone <repository_url>
+    cd chat_app
+    ```
+
+2. Create a virtual environment and activate it:
+    ```sh
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
+
+3. Install the required packages:
+    ```sh
+    pip install -r requirements.txt
+    ```
+
+4. Configure the server settings in `config.ini`:
+    ```ini
+    [tcp_server]
+    host = localhost
+    port = 6969
+
+    [ws_server]
+    host = localhost
+    port = 6968
+    ```
 
 ## Project Structure
 ```
 chat_app/
-├── client.py
+├── main.py
 ├── tcp_server.py
 ├── ws_server.py
 ├── client_manager.py
@@ -31,6 +66,9 @@ port = 6968
 ```
 
 ## Server Components
+
+1. **main.py**
+   - Starts the TCP and WebSocket servers.
 
 1. **tcp_server.py**
    - Starts the TCP server and listens for client connections.
@@ -66,37 +104,16 @@ port = 6968
    - Provides a centralized logging configuration.
    - Sets up logging for different modules.
 
-## Client Component
-
-1. **client.py**
-   - Connects to the TCP server.
-   - Sends and receives messages.
-   - Handles user input and server responses.
 
 ## Usage
 
-1. **Starting the TCP Server**
+1. **Starting the Server**
    - Run the server:
      ```sh
-     python tcp_server.py
+     python main.py
      ```
 
-2. **Starting the WebSocket Server**
-   - Run the WebSocket server:
-     ```sh
-     python ws_server.py
-     ```
-
-3. **Starting the Client**
-   - Run the client:
-     ```sh
-     python client.py
-     ```
-   - Enter a nickname when prompted.
-   - Type messages to send to the server.
-   - Use `!quit` to disconnect from the server.
-
-## Commands
+## Available Commands
 - **/list**: Lists all currently connected users.
 - **/whisper <username> <message>**: Sends a private message to a specific user.
 
