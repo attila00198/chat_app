@@ -1,10 +1,12 @@
 import websockets
 from client_manager import client_manager
-from message_handler import handle_message
+from message_handler import MessageHandler
 from logging_config import setup_logging
 
 # Configure logging
 logger = setup_logging('ws_server')
+
+mh = MessageHandler(client_manager)
 
 async def handle_client(websocket):
     try:
@@ -14,10 +16,10 @@ async def handle_client(websocket):
         logger.info(f"Client {username} connected via WebSocket.")
 
         # Értesítsük a többi klienst az új felhasználó csatlakozásáról
-        await handle_message("[SERVER]", f"{username} connected.")
+        await mh.handle_message("[SERVER]", f"{username} connected.")
 
         async for message in websocket:
-            await handle_message(username, message)
+            await mh.handle_message(username, message)
     except websockets.ConnectionClosed:
         logger.warning(f"Connection closed by {username}")
     finally:
@@ -25,7 +27,7 @@ async def handle_client(websocket):
         logger.info(f"Client {username} disconnected from WebSocket.")
 
         # Értesítsük a többi klienst a felhasználó kilépéséről
-        await handle_message("[SERVER]", f"{username} disconnected.")
+        await mh.handle_message("[SERVER]", f"{username} disconnected.")
 
 async def start_ws_server(host, port):
     server = await websockets.serve(handle_client, host, port)

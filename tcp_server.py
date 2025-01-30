@@ -1,10 +1,12 @@
 import asyncio
 from client_manager import client_manager
-from message_handler import handle_message
+from message_handler import MessageHandler
 from logging_config import setup_logging
 
 # Configure logging
 logger = setup_logging('tcp_server')
+
+mh = MessageHandler(client_manager)
 
 async def handle_client(reader, writer):
     addr = writer.get_extra_info('peername')
@@ -21,14 +23,14 @@ async def handle_client(reader, writer):
         logger.info(f"Client {username} connected.")
 
         # Értesítsük a többi klienst az új felhasználó csatlakozásáról
-        await handle_message("[SERVER]", f"{username} connected.")
+        await mh.handle_message("[SERVER]", f"{username} connected.")
 
         while True:
             data = await reader.read(1024)
             message = data.decode()
             if not message:
                 break
-            await handle_message(username, message)
+            await mh.handle_message(username, message)
     except ConnectionResetError:
         logger.warning(f"Connection reset by {username}")
     finally:
@@ -38,7 +40,7 @@ async def handle_client(reader, writer):
         logger.info(f"Client {username} disconnected.")
 
         # Értesítsük a többi klienst a felhasználó kilépéséről
-        await handle_message("[SERVER]", f"{username} disconnected.")
+        await mh.handle_message("[SERVER]", f"{username} disconnected.")
 
 async def start_tcp_server(host, port):
     server = await asyncio.start_server(handle_client, host, port)
