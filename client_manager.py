@@ -36,4 +36,4 @@ class ClientManager:
 
     async def get_all_user(self):
         async with self.lock:
-            return list(self.connected_users)
+            return self.connected_users
