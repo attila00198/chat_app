@@ -10,10 +10,10 @@ class ClientManager:
         self.lock = threading.Lock()
         logger.info("ClientManager initialized.")
 
-    def add_client(self, username, client_socket, client_type):
+    def add_client(self, username, client_socket):
         with self.lock:
-            self.client_list[username] = (client_socket, client_type)
-            logger.info(f"Client {username} added as {client_type}.")
+            self.client_list[username] = (client_socket)
+            logger.info(f"Client added as {username}.")
 
     def remove_client(self, username):
         with self.lock:
@@ -24,12 +24,7 @@ class ClientManager:
     def get_client_socket(self, username):
         with self.lock:
             client_info = self.client_list.get(username)
-            return client_info[0] if client_info else None
-
-    def get_client_type(self, username):
-        with self.lock:
-            client_info = self.client_list.get(username)
-            return client_info[1] if client_info else None
+            return client_info if client_info else None
 
     def get_all_users(self):
         with self.lock:
