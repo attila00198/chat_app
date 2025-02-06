@@ -1,40 +1,39 @@
-from logging_config import setup_logging
-import threading
+import asyncio
+import logging
 
 # Configure logging
-logger = setup_logging('client_manager')
+logger = logging.getLogger("client_manager")
+
 
 class ClientManager:
-    def __init__(self):
-        self.client_list = {}
-        self.lock = threading.Lock()
-        logger.info("ClientManager initialized.")
+    _instance = None
+    lock = asyncio.Lock()
+    connected_users = {}
 
-    def add_client(self, username, client_socket):
-        with self.lock:
-            self.client_list[username] = (client_socket)
-            logger.info(f"Client added as {username}.")
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(ClientManager, cls).__new__(cls, *args, **kwargs)
+            cls._instance.connected_users = {}
+            logger.info("ClientManager initialized.")
+        return cls._instance
 
-    def remove_client(self, username):
-        with self.lock:
-            if username in self.client_list:
-                del self.client_list[username]
-                logger.info(f"Client {username} removed.")
+    async def add_client(self, username, client_socket):
+        async with self.lock:
+            self.connected_users[username] = client_socket
+            logger.info(
+                f"New user added: '{username}' from '{client_socket.remote_address[0]}'"
+            )
 
-    def get_client_socket(self, username):
-        with self.lock:
-            client_info = self.client_list.get(username)
-            return client_info if client_info else None
+    async def remove_client(self, username):
+        async with self.lock:
+            if username in self.connected_users:
+                del self.connected_users[username]
+                logger.info(f"User: '{username}' removed.")
 
-    def get_all_users(self):
-        with self.lock:
-            return list(self.client_list.keys())
+    async def get_user_by_name(self, username):
+        async with self.lock:
+            return self.connected_users.get(username)
 
-    def get_username(self, client_socket):
-        with self.lock:
-            for username, (socket, _) in self.client_list.items():
-                if socket == client_socket:
-                    return username
-            return None
-
-client_manager = ClientManager()
+    async def get_all_user(self):
+        async with self.lock:
+            return list(self.connected_users)
