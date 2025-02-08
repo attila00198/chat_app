@@ -1,3 +1,4 @@
+import json
 from threading import Lock
 from logging_config import setup_logging
 from client_manager import ClientManager
@@ -35,5 +36,10 @@ class CommandManager:
             await self.commands[command_name](username, args)
         else:
             user = await self.manager.get_user_by_name(username)
-            await user[1].send(f"Command not found: {command_name}")
+            msg = {
+                "type": "message",
+                "sender": "SYSTEM",
+                "content": f"Command not Found {command_name}" 
+            }
+            await user[1].send(json.dumps(msg))
 

@@ -1,8 +1,8 @@
 import asyncio
-import logging
+from logging_config import setup_logging
 
 # Configure logging
-logger = logging.getLogger("client_manager")
+logger = setup_logging("client_manager")
 
 
 class ClientManager:

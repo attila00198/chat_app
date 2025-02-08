@@ -1,47 +1,51 @@
+import json
 import websockets
-from client_manager import ClientManager
-from command_manager import CommandManager
 from logging_config import setup_logging
+from message_handler import MessageHandler, Message
+from client_manager import ClientManager
+from pydantic import ValidationError
 
 # Configure logging
-logger = setup_logging('ws_server')
+logger = setup_logging("ws_server")
 
-command_manager = CommandManager()
 client_manager = ClientManager()
+message_handler = MessageHandler()
+
 
 async def handle_client(websocket):
     try:
-        await websocket.send("!NICKNAME")
+        # Kérjük el a felhasználó nevét
+        await websocket.send(
+            json.dumps({"type": "system", "content": "!NICKNAME"})
+        )
         username = await websocket.recv()
-        await client_manager.add_client(username, websocket)
+        print(username)
 
-        # Értesítsük a többi klienst az új felhasználó csatlakozásáról
-        await broadcast_message("[SERVER]:", f"{username} connected.")
+        # Regisztráljuk a felhasználót
+        await client_manager.add_client(username, websocket)
+        await message_handler.broadcast_message("SERVER", f"{username} connected.")
 
         async for message in websocket:
-            if message.startswith("/"):
-                await command_manager.handle_command(username, message)
-            else:
-                await broadcast_message(username, message)
+            try:
+                # JSON feldolgozás Pydantic segítségével
+                parsed_message = Message.model_validate_json(message)
+
+                # Továbbítjuk a validált üzenetet a MessageHandlernek
+                await message_handler.handle_message(parsed_message)
+
+            except ValidationError as e:
+                logger.error(f"Invalid message format from {username}: {e}")
+                await websocket.send(
+                    json.dumps({"type": "error", "content": "Invalid message format"})
+                )
+
     except websockets.ConnectionClosed:
         logger.warning(f"Connection closed by {username}")
     finally:
         await client_manager.remove_client(username)
-        logger.info(f"Client {username} disconnected from WebSocket.")
+        logger.info(f"Client {username} disconnected")
+        await message_handler.broadcast_message("SERVER", f"{username} disconnected.")
 
-        # Értesítsük a többi klienst a felhasználó kilépéséről
-        await broadcast_message("[SERVER]", f"{username} disconnected.")
-
-async def broadcast_message(sender_username, message):
-    """Üzenet küldése minden kliensnek, kivéve azt, aki küldte."""
-    message_to_send = f"{sender_username}: {message}"
-    user_dict = await client_manager.get_all_user()
-    for user, client_socket in user_dict.items():
-        if user != sender_username:
-            try:
-                await client_socket.send(message_to_send)
-            except Exception as e:
-                logger.error(f"WebSocket error: {e}")
 
 async def start_ws_server(host, port):
     server = await websockets.serve(handle_client, host, port)

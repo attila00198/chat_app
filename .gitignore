@@ -3,4 +3,3 @@ __pycache__/
 .venv/
 tcp_client.py
 index.html
-message_handler.py
