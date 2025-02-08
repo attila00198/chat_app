@@ -16,14 +16,13 @@ async def handle_client(websocket):
     try:
         # Kérjük el a felhasználó nevét
         await websocket.send(
-            json.dumps({"type": "system", "content": "!NICKNAME"})
+            json.dumps({"type": "System", "sender": "System", "content": "!NICKNAME"})
         )
         username = await websocket.recv()
-        print(username)
 
         # Regisztráljuk a felhasználót
         await client_manager.add_client(username, websocket)
-        await message_handler.broadcast_message("SERVER", f"{username} connected.")
+        await message_handler.broadcast_message("System", f"{username} joined the chat.")
 
         async for message in websocket:
             try:
@@ -40,11 +39,12 @@ async def handle_client(websocket):
                 )
 
     except websockets.ConnectionClosed:
-        logger.warning(f"Connection closed by {username}")
+        logger.info(f"Connection closed by {username}")
     finally:
+        logger.info(f"Client '{username}' disconnected")
         await client_manager.remove_client(username)
-        logger.info(f"Client {username} disconnected")
-        await message_handler.broadcast_message("SERVER", f"{username} disconnected.")
+        await message_handler.broadcast_message("System", f"{username} disconnected.")
+
 
 
 async def start_ws_server(host, port):

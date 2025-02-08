@@ -1,4 +1,7 @@
+from http import client
+import json
 import asyncio
+import logging
 from logging_config import setup_logging
 
 # Configure logging
@@ -20,15 +23,15 @@ class ClientManager:
     async def add_client(self, username, client_socket):
         async with self.lock:
             self.connected_users[username] = client_socket
-            logger.info(
-                f"New user added: '{username}' from '{client_socket.remote_address[0]}'"
-            )
+            logger.info(f"User '{username}' added to connected users.")
+            await self.send_user_list()
 
     async def remove_client(self, username):
         async with self.lock:
             if username in self.connected_users:
                 del self.connected_users[username]
-                logger.info(f"User: '{username}' removed.")
+                logger.info(f"User '{username}' removed form connected users")
+                await self.send_user_list()
 
     async def get_user_by_name(self, username):
         async with self.lock:
@@ -39,3 +42,13 @@ class ClientManager:
     async def get_all_user(self):
         async with self.lock:
             return self.connected_users
+
+    async def send_user_list(self):
+        message_to_send = {
+            "type": "user_list_update",
+            "sender": "System",
+            "content": list(self.connected_users.keys())
+        }
+
+        for client_socket in self.connected_users.values():
+            await client_socket.send(json.dumps(message_to_send))
