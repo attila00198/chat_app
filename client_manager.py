@@ -32,7 +32,9 @@ class ClientManager:
 
     async def get_user_by_name(self, username):
         async with self.lock:
-            return self.connected_users.get(username)
+            if username in self.connected_users:
+                return username, self.connected_users[username]
+            return
 
     async def get_all_user(self):
         async with self.lock:

@@ -2,5 +2,5 @@
 __pycache__/
 .venv/
 tcp_client.py
-ws_client.html
+index.html
 message_handler.py
