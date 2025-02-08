@@ -1,7 +1,5 @@
-from http import client
 import json
 import asyncio
-import logging
 from logging_config import setup_logging
 
 # Configure logging
