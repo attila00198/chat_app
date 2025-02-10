@@ -1,5 +1,3 @@
 .vscode/
 __pycache__/
 .venv/
-tcp_client.py
-index.html
