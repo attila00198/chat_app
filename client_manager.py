@@ -1,44 +1,53 @@
-import threading
 from logging_config import setup_logging
+import asyncio
+import json
 
 # Configure logging
-logger = setup_logging('client_manager')
+logger = setup_logging("client_manager")
+
 
 class ClientManager:
-    def __init__(self):
-        self.client_list = {}
-        self.lock = threading.Lock()
-        logger.info("ClientManager initialized.")
+    _instance = None
+    lock = asyncio.Lock()
+    connected_users = {}
 
-    def add_client(self, username, client_socket):
-        with self.lock:
-            if username in self.client_list:
-                client_socket.send("Username already taken. Please reconnect with a different name.".encode())
-                client_socket.close()
-                logger.warning(f"Username {username} already taken.")
-            else:
-                self.client_list[username] = client_socket
-                logger.info(f"Added client {username}")
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(ClientManager, cls).__new__(
+                cls, *args, **kwargs)
+            cls._instance.connected_users = {}
+            logger.info("ClientManager initialized.")
+        return cls._instance
 
-    def remove_client(self, username):
-        with self.lock:
-            if username in self.client_list:
-                del self.client_list[username]
-                logger.info(f"Removed client {username}")
+    async def add_client(self, username, client_socket):
+        async with self.lock:
+            self.connected_users[username] = client_socket
+            logger.info(f"User '{username}' added to connected users.")
+            await self.send_user_list()
 
-    def get_client_socket(self, username):
-        with self.lock:
-            return self.client_list.get(username)
+    async def remove_client(self, username):
+        async with self.lock:
+            if username in self.connected_users:
+                del self.connected_users[username]
+                logger.info(f"User '{username}' removed form connected users")
+                await self.send_user_list()
 
-    def get_all_users(self):
-        with self.lock:
-            return list(self.client_list.keys())
+    async def get_user_by_name(self, username):
+        async with self.lock:
+            if username in self.connected_users:
+                return username, self.connected_users[username]
+            return
 
-    def get_username(self, client_socket):
-        with self.lock:
-            for username, sock in self.client_list.items():
-                if sock == client_socket:
-                    return username
-            return None
+    async def get_all_user(self):
+        async with self.lock:
+            return self.connected_users
 
-client_manager = ClientManager()
+    async def send_user_list(self):
+        message_to_send = {
+            "type": "user_list_update",
+            "sender": "System",
+            "content": list(self.connected_users.keys())
+        }
+
+        for client_socket in self.connected_users.values():
+            await client_socket.send(json.dumps(message_to_send))
