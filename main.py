@@ -9,6 +9,7 @@ config.read('config.ini')
 ws_host = config['ws_server']['host']
 ws_port = int(config['ws_server']['port'])
 
+
 async def main():
     ws_task = asyncio.create_task(start_ws_server(ws_host, ws_port))
 

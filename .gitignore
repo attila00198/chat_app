@@ -1,3 +1,7 @@
 .vscode/
 __pycache__/
+chat_app/
 .venv/
+.app.log
+.ws_server.log
+.ws_server_start.sh

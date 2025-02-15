@@ -1,12 +1,25 @@
+import ssl
 import json
+import configparser
 import websockets
 from logging_config import setup_logging
 from message_handler import MessageHandler, Message
 from client_manager import ClientManager
 from pydantic import ValidationError
 
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+# SSL
+ssl_certfile = config['ssl']['ssl_certfile']
+ssl_keyfile = config['ssl']['ssl_keyfile']
+
+# Create ssl context
+ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+ssl_context.load_cert_chain(certfile=ssl_certfile, keyfile=ssl_keyfile)
+
 # Configure logging
-logger = setup_logging("ws_server")
+logger = setup_logging("ws_server", "ws_server.log")
 
 client_manager = ClientManager()
 message_handler = MessageHandler()
@@ -48,6 +61,6 @@ async def handle_client(websocket):
 
 
 async def start_ws_server(host, port):
-    server = await websockets.serve(handle_client, host, port)
+    server = await websockets.serve(handle_client, host, port, ssl=ssl_context)
     logger.info(f"WebSocket server started on {host}:{port}")
     await server.wait_closed()
