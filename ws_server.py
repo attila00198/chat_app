@@ -10,13 +10,23 @@ from pydantic import ValidationError
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-# SSL
-ssl_certfile = config['ssl']['ssl_certfile']
-ssl_keyfile = config['ssl']['ssl_keyfile']
+# SSL beállítások
+use_ssl = config.getboolean('ssl', 'use_ssl')  # boolean érték
 
-# Create ssl context
-ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-ssl_context.load_cert_chain(certfile=ssl_certfile, keyfile=ssl_keyfile)
+# SSL kontextus létrehozása, ha szükséges
+if use_ssl:
+    ssl_certfile = config['ssl']['ssl_certfile']
+    ssl_keyfile = config['ssl']['ssl_keyfile']
+
+    # Ellenőrizni, hogy léteznek-e az SSL fájlok
+    if not (ssl_certfile and ssl_keyfile):
+        raise FileNotFoundError("SSL tanúsítványok és kulcsok nem találhatóak!")
+    
+    # SSL kontextus létrehozása
+    ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    ssl_context.load_cert_chain(certfile=ssl_certfile, keyfile=ssl_keyfile)
+else:
+    ssl_context = None  # Ha nem használunk SSL-t, null értékre állítjuk
 
 # Configure logging
 logger = setup_logging("ws_server", "ws_server.log")
@@ -61,6 +71,9 @@ async def handle_client(websocket):
 
 
 async def start_ws_server(host, port):
-    server = await websockets.serve(handle_client, host, port, ssl=ssl_context)
+    if use_ssl:
+        server = await websockets.serve(handle_client, host, port, ssl=ssl_context)
+    else:
+       server = await websockets.serve(handle_client, host, port) 
     logger.info(f"WebSocket server started on {host}:{port}")
     await server.wait_closed()
