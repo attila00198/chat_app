@@ -12,11 +12,18 @@ Ez egy egyszerű WebSocket alapú chat szerver, amely támogatja a felhasználó
    cd chat-server
    ```
 2. **Telepítsd a függőségeket**:
+   2.a ***Windows rendszeren***:
    ```sh
    pip install -r requirements.txt
    ```
-3. **Hozz létre egy `config.ini` fájlt az `config.example.ini` alapján**.
-4. **Indítsd el a szervert**:
+   2.b. ***Debian/ubuntu rendszeren***:
+   ```sh
+   python -m venv venv
+   source ./venv/bin/activate
+   pip install -r requirements.txt
+   ```
+4. **Hozz létre egy `config.ini` fájlt az `config.example.ini` alapján**.
+5. **Indítsd el a szervert**:
    ```sh
    python main.py
    ```
@@ -27,10 +34,24 @@ Ez egy egyszerű WebSocket alapú chat szerver, amely támogatja a felhasználó
 A `config.ini` fájlban állíthatók be a szerver alapvető funkciói.
 
 ```ini
-[settings]
-ENABLE_COMMANDS = True    # Parancsok engedélyezése
-SSL_ENABLED = False       # SSL titkosítás bekapcsolása
-SERVER_PORT = 8000        # Szerver port
+# To setup your websocket chat server rename of copy this file as config.ini
+
+# Websocket server host/port
+[server]
+host = localhost
+port = 8000
+
+# If you want to use SSL suport set up this section - default fale
+[ssl]
+use_ssl = false
+ssl_certfile = /path/to/cert.pem
+ssl_keyfile = /path/to/privkey.pem
+
+# Enable/disable commands - default true
+[commands]
+# This setting is not working a this time
+enable_commands = true
+
 ```
 
 ---
@@ -92,6 +113,7 @@ További parancsok a jövőben lesznek bővítve!
 | `client_manager.py` | A kliensek kezelése |
 | `command_manager.py` | Parancsok feldolgozása |
 | `command_list.py` | Előre definiált parancsok |
+| `logging_config.py` | Logging konfiguráció |
 | `requirements.txt` | A függőségek listája |
 
 ---
@@ -99,13 +121,11 @@ További parancsok a jövőben lesznek bővítve!
 ## 🚀 Fejlesztés & Jövőbeli tervek
 - [ ] **További parancsok bővítése**
 - [ ] **Biztonsági fejlesztések (pl. autentikáció)**
+- [ ] **Emoji használat integráció (pl. :smile:)**
 - [ ] **Kliens verzió fejlesztése & verziókezelés**
 
 ---
 
 ## 📅 Licenc & Hozzájárulás
-*(Ide jöhet egy licenc infó, pl. MIT License, ha szeretnéd nyilvánosan megosztani.)*
+*MIT*
 
----
-
-Ez egy alap README, amit **tetszőlegesen bővíthetsz**. 😊 Mit gondolsz, megfelel így az alapstruktúra?
