@@ -1,63 +1,29 @@
-from client_manager import client_manager
+import json
+from client_manager import ClientManager
 from logging_config import setup_logging
 
 # Configure logging
-logger = setup_logging('command_list')
-
+logger = setup_logging('CommandList')
+client_manager = ClientManager()
 
 async def list_users(username, args=None):
     """
     Lists all currently connected users.
     """
-    users = list(client_manager.get_all_users())
+    users = await client_manager.get_all_user()
     if not users:
         logger.info("No users connected.")
         return
 
-    send_to = client_manager.get_client_socket(username)
-    client_type = client_manager.get_client_type(username)
-
-    if client_type == 'websocket':
-        await send_to.send(f"Connected users: {', '.join(users)}")
-    else:
-        send_to.write(f"Connected users: {', '.join(users)}".encode())
-        await send_to.drain()
-    logger.info(f"Command /list used by {username}")
-
-
-async def whisper(username, args):
-    """
-    Sends a private message to a specific user.
-    """
-    sender_socket = client_manager.get_client_socket(username)
-    sender_type = client_manager.get_client_type(username)
-
-    if not args:
-        if sender_type == 'websocket':
-            await sender_socket.send("Usage: /whisper <username> <message>")
-        else:
-            sender_socket.write(
-                "Usage: /whisper <username> <message>".encode())
-            await sender_socket.drain()
+    user_to_send = await client_manager.get_user_by_name(username)
+    if not user_to_send:
+        logger.error("An error ocured wnile searching for user to send")
         return
 
-    parts = args.split(" ", 1)
-    recipient = parts[0]
-    message = parts[1] if len(parts) > 1 else None
-    if not message:
-        return
-
-    recipient_socket = client_manager.get_client_socket(recipient)
-    if recipient_socket:
-        recepient_type = client_manager.get_client_type(recipient)
-        if recepient_type == 'websocket':
-            await recipient_socket.send(f"[WHISPER] {username}: {message}")
-        else:
-            recipient_socket.write(f"[WHISPER] {username}: {message}".encode())
-            await recipient_socket.drain()
-    else:
-        if sender_type == 'websocket':
-            await sender_socket.send(f"User {recipient} not found.")
-        else:
-            sender_socket.write(f"User {recipient} not found.".encode())
-            await sender_socket.drain()
+    _, socket = user_to_send
+    message_to_send = {
+        "type": "message",
+        "sender": "System",
+        "content": "Currently online user(s):\n" + "\n".join(users.keys())
+    }
+    await socket.send(json.dumps(message_to_send))

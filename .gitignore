@@ -1,10 +1,39 @@
-.vscode/
+# ========================
+# PYTHON SPECIFIKUS KIZÁRÁSOK
+# ========================
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+
+# ========================
+# VIRTUÁLIS KÖRNYEZETEK
+# ========================
+venv/
+env/
 chat_app/
-.venv/
-app.log
-ws_server.log
-ws_server_start.sh
+# ========================
+# KONFIGURÁCIÓS FÁJLOK
+# ========================
 config.ini
+<<<<<<< HEAD
 
 *.log
+=======
+config.env
+
+# ========================
+# LOG FILES ÉS IDE TEMP FILES
+# ========================
+logs/
+*.log
+*.tmp
+*.bak
+
+# ========================
+# OPERÁCIÓS RENDSZER SPECIFIKUS
+# ========================
+.DS_Store  # MacOS
+Thumbs.db  # Windows
+>>>>>>> development

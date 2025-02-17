@@ -1,22 +1,44 @@
 import asyncio
 import configparser
-from ws_server import start_ws_server
+import signal
+from logging_config import setup_logging
+from ws_server import WebSocketServer
 
-# Read configuration
+logger = setup_logging("main")
+
 config = configparser.ConfigParser()
 config.read('config.ini')
-
 ws_host = config['ws_server']['host']
 ws_port = int(config['ws_server']['port'])
 
 
 async def main():
-    ws_task = asyncio.create_task(start_ws_server(ws_host, ws_port))
+    # WebSocketServer példányosítása
+    ws_server = WebSocketServer('config.ini')
 
-    await asyncio.gather(ws_task)
+    # Graceful shutdown kezelése
+    stop = asyncio.Event()
+
+    def signal_handler():
+        logger.info("Shutdown signal received...")
+        stop.set()
+
+    # Signal handlerek regisztrálása
+    loop = asyncio.get_running_loop()
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        loop.add_signal_handler(sig, signal_handler)
+
+    # Szerver indítása
+    ws_task = asyncio.create_task(ws_server.start(ws_host, ws_port))
+
+    try:
+        await stop.wait()  # Várunk a leállítási jelzésre
+        ws_task.cancel()   # Task megszakítása
+        await ws_task      # Megvárjuk a task leállását
+    except asyncio.CancelledError:
+        logger.info("WebSocket server task cancelled")
+    finally:
+        logger.info("Server shutdown complete")
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main(), debug=True)
-    except KeyboardInterrupt:
-        print("Server is shutting down...")
+    asyncio.run(main(), debug=True)
