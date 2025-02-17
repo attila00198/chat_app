@@ -3,7 +3,7 @@ from client_manager import ClientManager
 from logging_config import setup_logging
 
 # Configure logging
-logger = setup_logging('command_list')
+logger = setup_logging('CommandList')
 client_manager = ClientManager()
 
 async def list_users(username, args=None):

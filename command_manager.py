@@ -5,7 +5,7 @@ from client_manager import ClientManager
 from command_list import list_users
 
 # Configure logging
-logger = setup_logging("command_manager")
+logger = setup_logging("CommandManager")
 
 
 class CommandManager:

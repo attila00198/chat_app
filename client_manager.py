@@ -3,7 +3,7 @@ import asyncio
 import json
 
 # Configure logging
-logger = setup_logging("client_manager")
+logger = setup_logging("ClientManager")
 
 
 class ClientManager:
