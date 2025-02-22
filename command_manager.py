@@ -37,7 +37,7 @@ class CommandManager:
             if user:
                 _, socket = user
                 msg = {
-                    "type": "message",
+                    "type": "error",
                     "sender": "System",
                     "content": f"Command not Found {command_name}"
                 }

@@ -103,7 +103,7 @@ class MessageHandler:
         """
         try:
             message_data = json.dumps({
-                "type": "message",
+                "type": "System" if sender == "System" else "message",
                 "sender": sender,
                 "content": content,
                 "target": target

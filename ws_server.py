@@ -48,7 +48,7 @@ class WebSocketServer:
         try:
             # Felhasználónév bekérése
             await websocket.send(
-                json.dumps({"type": "System", "sender": "System", "content": "!NICKNAME"})
+                json.dumps({"type": "nickname_request", "sender": "System", "content": "!NICKNAME"})
             )
             username = await websocket.recv()
 
