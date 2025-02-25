@@ -4,12 +4,12 @@ import signal
 from logging_config import setup_logging
 from ws_server import WebSocketServer
 
-logger = setup_logging("main")
+logger = setup_logging(__name__)
 
 config = configparser.ConfigParser()
 config.read('config.ini')
-ws_host = config['ws_server']['host']
-ws_port = int(config['ws_server']['port'])
+HOST = config['ws_server']['host']
+PORT = int(config['ws_server']['port'])
 
 
 async def main():
@@ -29,7 +29,7 @@ async def main():
         loop.add_signal_handler(sig, signal_handler)
 
     # Szerver indítása
-    ws_task = asyncio.create_task(ws_server.start(ws_host, ws_port))
+    ws_task = asyncio.create_task(ws_server.start(HOST, PORT))
 
     try:
         await stop.wait()  # Várunk a leállítási jelzésre
