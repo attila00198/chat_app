@@ -1,48 +1,44 @@
-import json
-from typing import List, Optional, Dict
-from pydantic import BaseModel
-from websockets import WebSocketServerProtocol
 from logging_config import setup_logging
 from client_manager import ClientManager
 from command_manager import CommandManager
-
-class Message(BaseModel):
-    """Üzenetek validálására szolgáló Pydantic model"""
-    type: str
-    sender: str
-    content: str
-    target: Optional[List[str]] = None
+from models import Message
 
 
 class MessageHandler:
-    """Üzenetek kezelésére szolgáló osztály"""
+    """Class for handling messages"""
 
-    def __init__(self,):
+    def __init__(self):
         """
-        MessageHandler inicializálása.
-
-        Args:
-            logger_name: A logger neve
+        Inicializing the MessageHandler.
         """
         self.logger = setup_logging("MessageHandler")
+        self.logger.info("MessageHandler initialized.")
+
+        # Initializing components
         self.command_manager = CommandManager()
         self.client_manager = ClientManager()
 
         # Üzenettípusok és kezelőik összerendelése
         self.message_handlers = {
-            "message": self.handle_chat_message,
-            "command": self.handle_command
+            "message": self.handle_chat_message,  # Simple chat messages. Thay can be sent by users or tha system
+            "command": self.handle_command,  # Commands
+            # Temporary solution for system and error messages
+            "system": self.handle_chat_message,
+            "error": self.handle_chat_message,
+            # TODO Add more message types if needed (e.g. group messages, private messages)
+            # "private_message": self.send_private_message,
+            # "group_message": self.send_group_message,
         }
 
-    async def handle_message(self, message: Message) -> None:
+    async def dispatch_message(self, message: Message) -> None:
         """
-        Üzenet továbbítása a megfelelő kezelőhöz.
+        Handling messages based on their type.
 
         Args:
-            message: A feldolgozandó üzenet
+            message: message to process
 
         Raises:
-            ValueError: Ha ismeretlen üzenettípust kap
+            ValueError: if the message type is unknown
         """
         try:
             handler = self.message_handlers.get(message.type)
@@ -56,114 +52,97 @@ class MessageHandler:
 
     async def handle_chat_message(self, message: Message) -> None:
         """
-        Chat üzenetek kezelése.
+        Handling chat, system and error messages.
 
         Args:
-            message: A továbbítandó chat üzenet
+            message: Message to relay
         """
         try:
-            await self.broadcast_message(
-                sender=message.sender,
-                content=message.content,
-                target=message.target
-            )
+            await self.broadcast_message(message)
         except Exception as e:
             self.logger.error(f"Error handling chat message: {e}")
             raise
 
     async def handle_command(self, message: Message) -> None:
         """
-        Parancsok kezelése.
+        Passing the command to the command manager.
 
         Args:
             message: A végrehajtandó parancs
         """
         try:
-            await self.command_manager.handle_command(
-                message.sender,
-                message.content
+            await self.command_manager.execute_command(
+                sender=message.sender, message=message.content
             )
         except Exception as e:
             self.logger.error(f"Error handling command: {e}")
             raise
 
-    async def broadcast_message(
-        self,
-        sender: str,
-        content: str,
-        target: Optional[List[str]] = None
-    ) -> None:
+    async def send_private_message(self, target: str, message=Message) -> None:
         """
-        Üzenet küldése a megadott címzetteknek vagy minden kliensnek.
+        Sending private message to the target.
 
         Args:
-            sender: Küldő azonosítója
-            content: Az üzenet tartalma
-            target: Opcionális címzettlista
+            message: Message object
+            target: Recipient's identifier/nickname
         """
         try:
-            message_data = json.dumps({
-                "type": "System" if sender == "System" else "message",
-                "sender": sender,
-                "content": content,
-                "target": target
-            })
+            message = Message(
+                type=message.type, sender=message.sender, content=message.content
+            ).model_dump_json()
 
-            # Címzettek meghatározása
             user_dict = await self.client_manager.get_all_user()
-            recipients = self._get_recipients(user_dict, target)
+            recipient = self._get_recipients(user_dict, [target])
 
-            # Üzenet küldése
-            await self._send_to_recipients(
-                message_data=message_data,
-                recipients=recipients,
-                sender=sender
-            )
+            for _, client_socket in recipient.items():
+                try:
+                    await client_socket.send(message)
+                except Exception as e:
+                    self.logger.error(f"Error sending private message: {e}")
+                    raise
 
         except Exception as e:
-            self.logger.error(f"Error broadcasting message: {e}")
+            self.logger.error(f"Error sending private message: {e}")
             raise
 
-    def _get_recipients(
+    async def broadcast_message(
         self,
-        user_dict: Dict[str, WebSocketServerProtocol],
-        target: Optional[List[str]]
-    ) -> Dict[str, WebSocketServerProtocol]:
-        """
-        Címzettek szűrése a target lista alapján.
-
-        Args:
-            user_dict: Az összes felhasználó szótára
-            target: Opcionális címzettlista
-
-        Returns:
-            A szűrt címzettek szótára
-        """
-        if target is None:
-            return user_dict
-        return {
-            user: socket
-            for user, socket in user_dict.items()
-            if user in target
-        }
-
-    async def _send_to_recipients(
-        self,
-        message_data: str,
-        recipients: Dict[str, WebSocketServerProtocol],
-        sender: str
+        message: Message,
     ) -> None:
         """
-        Üzenet küldése a címzetteknek.
+        Sending message to all users.
 
         Args:
-            message_data: A küldendő üzenet JSON formátumban
-            recipients: A címzettek szótára
-            sender: A küldő azonosítója
+            sender: sender's identifier/nickname
+            content: message content
         """
-        for user, client_socket in recipients.items():
-            if user != sender:
+
+        message_to_send = message.model_dump_json()
+        all_users = await self.client_manager.get_all_user()
+
+        try:
+            for user, client_socket in all_users.items():
                 try:
-                    await client_socket.send(message_data)
+                    if user != message.sender:
+                        await client_socket.send(message_to_send)
                 except Exception as e:
                     self.logger.error(f"Error sending to {user}: {e}")
+
+        except Exception as e:
+            self.logger.error(f"Error while trying to send message: {e}")
+            raise
+
+    async def send_user_list(self):
+        all_users = await self.client_manager.get_all_user()
+        message_to_send = Message(
+            type="user_list_update",
+            sender="System",
+            content=list(all_users.keys()),
+        ).model_dump_json()
+
+        for user, client_socket in all_users.items():
+            try:
+                await client_socket.send(message_to_send)
+            except Exception as e:
+                self.logger.error(f"Error sending user list to {user}: {e}")
+                raise
